@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node library-backend.js",
-    "dev": "nodemon library-backend.js",
+    "dev": "nodemon library-backend.js --ignore ./library-frontend/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Anwar Sh.",
