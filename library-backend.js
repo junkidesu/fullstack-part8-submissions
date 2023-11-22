@@ -201,11 +201,11 @@ const resolvers = {
     },
   },
   Book: {
-    title: (root) => root.title,
-    published: (root) => root.published,
-    author: (root) => root.author,
-    id: (root) => root.id,
-    genres: (root) => root.genres,
+    title: ({ title }) => title,
+    published: ({ published }) => published,
+    author: async ({ author }) => Author.findById(author),
+    id: ({ id }) => id,
+    genres: ({ genres }) => genres,
   },
   Author: {
     name: (root) => root.name,
