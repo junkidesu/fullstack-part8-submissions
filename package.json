@@ -1,0 +1,20 @@
+{
+  "name": "library-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node library-backend.js",
+    "dev": "nodemon library-backend.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anwar Sh.",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/server": "^4.9.5",
+    "graphql": "^16.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
