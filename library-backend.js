@@ -147,7 +147,18 @@ const typeDefs = `
 const resolvers = {
   Query: {
     bookCount: () => Book.collection.countDocuments(),
-    allBooks: async (_root, _args) => Book.find({}),
+    allBooks: async (_root, { author, genre }) => {
+      const foundAuthor = await Author.findOne({ name: author });
+
+      if (foundAuthor && genre)
+        return Book.find({ author: foundAuthor._id, genres: genre });
+
+      if (foundAuthor) return Book.find({ author: foundAuthor._id });
+
+      if (genre) return Book.find({ genres: genre });
+
+      return Book.find({});
+    },
     allAuthors: async () => Author.find({}),
     authorCount: async () => Author.collection.countDocuments(),
   },
@@ -175,7 +186,7 @@ const resolvers = {
         });
       }
 
-      return newBook.save();
+      return newBook;
     },
     editAuthor: (_root, { name, setBornTo }) => {
       const author = authors.find((a) => a.name === name);
