@@ -122,7 +122,8 @@ const typeDefs = `
   }
 
   type Mutation {
-    addBook(title: String!, author: String!, published: Int!, genres: [String!]!): Book!
+    addBook(title: String!, author: String!, published: Int!, genres: [String!]!): Book
+    editAuthor(name: String!, setBornTo: Int!): Author
   }
 `;
 
@@ -158,6 +159,17 @@ const resolvers = {
       books = books.concat(newBook);
 
       return newBook;
+    },
+    editAuthor: (_root, { name, setBornTo }) => {
+      const author = authors.find((a) => a.name === name);
+
+      if (!author) return null;
+
+      const editedAuthor = { ...author, born: setBornTo };
+
+      authors = authors.map((a) => (a.name !== name ? a : editedAuthor));
+
+      return editedAuthor;
     },
   },
   Book: {
