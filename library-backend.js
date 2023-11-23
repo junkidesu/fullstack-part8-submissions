@@ -91,9 +91,10 @@ const resolvers = {
     },
     allAuthors: async () => Author.find({}),
     authorCount: async () => Author.collection.countDocuments(),
+    me: async (_root, _args, { currentUser }) => currentUser,
   },
   Mutation: {
-    addBook: async (_root, args) => {
+    addBook: async (_root, args, { currentUser }) => {
       let foundAuthor = await Author.findOne({ name: args.author });
 
       if (!foundAuthor) {
@@ -204,5 +205,18 @@ const server = new ApolloServer({
 startStandaloneServer(server, {
   listen: {
     port: 4000,
+  },
+  context: async ({ req, res }) => {
+    const auth = req ? req.headers.authorization : null;
+
+    if (auth && auth.startsWith("Bearer ")) {
+      const token = auth.replace("Bearer ", "");
+
+      const decodedToken = jwt.verify(token, process.env.SECRET);
+
+      const currentUser = await User.findById(decodedToken.id);
+
+      return { currentUser };
+    }
   },
 }).then(({ url }) => console.log(`Server running at ${url}`));
