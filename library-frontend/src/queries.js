@@ -14,7 +14,10 @@ export const ALL_BOOKS = gql`
   query {
     allBooks {
       title
-      author
+      author {
+        name
+        born
+      }
       published
     }
   }
@@ -47,4 +50,4 @@ export const EDIT_BIRTH_YEAR = gql`
       born
     }
   }
-`
+`;
