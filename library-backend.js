@@ -4,6 +4,7 @@ const { startStandaloneServer } = require("@apollo/server/standalone");
 const mongoose = require("mongoose");
 const Book = require("./models/book");
 const Author = require("./models/author");
+const User = require("./models/user");
 
 require("dotenv").config();
 
@@ -35,16 +36,40 @@ const typeDefs = `
     genres: [String!]!
   }
 
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
+
   type Query {
     bookCount: Int
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
     authorCount: Int
+    me: User
   }
 
   type Mutation {
-    addBook(title: String!, author: String!, published: Int!, genres: [String!]!): Book
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
     editAuthor(name: String!, setBornTo: Int!): Author
+    createUser(
+      username: String!
+      favoriteGenre: String!
+    ): User
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `;
 
@@ -110,6 +135,22 @@ const resolvers = {
         });
       }
     },
+    createUser: async (_root, args) => {
+      const newUser = new User({ ...args });
+
+      try {
+        await newUser.save();
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            error,
+          },
+        });
+      }
+
+      return newUser;
+    },
   },
   Book: {
     title: ({ title }) => title,
@@ -127,6 +168,10 @@ const resolvers = {
 
       return Book.collection.countDocuments({ author: author._id });
     },
+  },
+  User: {
+    username: ({ username }) => username,
+    favoriteGenre: ({ favoriteGenre }) => favoriteGenre,
   },
 };
 
