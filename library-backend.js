@@ -178,7 +178,7 @@ const resolvers = {
       try {
         await newBook.save();
       } catch (error) {
-        throw new GraphQLError("Saving a book failed", {
+        throw new GraphQLError(error.message, {
           extensions: {
             code: "BAD_USER_INPUT",
             error,
@@ -189,13 +189,22 @@ const resolvers = {
       return newBook;
     },
     editAuthor: async (_root, { name, setBornTo }) => {
-      const editedAuthor = Author.findOneAndUpdate(
-        { name },
-        { born: setBornTo },
-        { context: "query", new: true }
-      );
+      try {
+        const editedAuthor = await Author.findOneAndUpdate(
+          { name },
+          { born: setBornTo },
+          { context: "query", new: true }
+        );
 
-      return editedAuthor;
+        return editedAuthor;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            error,
+          },
+        });
+      }
     },
   },
   Book: {
