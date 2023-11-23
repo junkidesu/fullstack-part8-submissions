@@ -1,5 +1,6 @@
 import Authors from "./components/Authors";
 import Books from "./components/Books";
+import Recommendations from "./components/Recommendations";
 import EditBirthYear from "./components/EditBirthYear";
 import NewBook from "./components/NewBook";
 import LoginForm from "./components/LoginForm";
@@ -40,6 +41,9 @@ const App = () => {
             <Link to="/edit">
               <button>Edit Birthyear</button>
             </Link>
+            <Link to="recommend">
+              <button>Recommendations</button>
+            </Link>
           </>
         )}
         {token ? (
@@ -57,6 +61,7 @@ const App = () => {
         <Route path="/authors" element={<Authors />} />
         <Route path="/add" element={<NewBook />} />
         <Route path="/edit" element={<EditBirthYear />} />
+        <Route path="/recommend" element={<Recommendations />} />
       </Routes>
     </div>
   );
