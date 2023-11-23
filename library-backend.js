@@ -2,6 +2,7 @@ const { ApolloServer } = require("@apollo/server");
 const { GraphQLError } = require("graphql");
 const { startStandaloneServer } = require("@apollo/server/standalone");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const Book = require("./models/book");
 const Author = require("./models/author");
 const User = require("./models/user");
@@ -151,6 +152,23 @@ const resolvers = {
 
       return newUser;
     },
+    login: async (_root, { username, password }) => {
+      const user = await User.findOne({ username });
+
+      if (!user || password !== "password")
+        throw new GraphQLError("Username or password incorrect", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
+
+      const userForToken = {
+        username,
+        id: user._id,
+      };
+
+      return { value: jwt.sign(userForToken, process.env.SECRET) };
+    },
   },
   Book: {
     title: ({ title }) => title,
@@ -172,6 +190,9 @@ const resolvers = {
   User: {
     username: ({ username }) => username,
     favoriteGenre: ({ favoriteGenre }) => favoriteGenre,
+  },
+  Token: {
+    value: ({ value }) => value,
   },
 };
 
