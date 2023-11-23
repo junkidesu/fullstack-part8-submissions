@@ -188,14 +188,12 @@ const resolvers = {
 
       return newBook;
     },
-    editAuthor: (_root, { name, setBornTo }) => {
-      const author = authors.find((a) => a.name === name);
-
-      if (!author) return null;
-
-      const editedAuthor = { ...author, born: setBornTo };
-
-      authors = authors.map((a) => (a.name !== name ? a : editedAuthor));
+    editAuthor: async (_root, { name, setBornTo }) => {
+      const editedAuthor = Author.findOneAndUpdate(
+        { name },
+        { born: setBornTo },
+        { context: "query", new: true }
+      );
 
       return editedAuthor;
     },
