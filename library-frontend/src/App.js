@@ -4,12 +4,18 @@ import EditBirthYear from "./components/EditBirthYear";
 import NewBook from "./components/NewBook";
 import LoginForm from "./components/LoginForm";
 import { Route, Routes, Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 
 const App = () => {
   const [token, setToken] = useState(null);
   const client = useApolloClient();
+
+  useEffect(() => {
+    const userToken = localStorage.getItem("user-token");
+
+    if (userToken) setToken(userToken);
+  }, []);
 
   const handleLogout = () => {
     setToken(null);
