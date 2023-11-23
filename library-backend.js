@@ -215,10 +215,14 @@ const resolvers = {
     genres: ({ genres }) => genres,
   },
   Author: {
-    name: (root) => root.name,
-    born: (root) => root.born,
-    id: (root) => root.id,
-    bookCount: (root) => books.filter((b) => b.author === root.name).length,
+    name: ({ name }) => name,
+    born: ({ born }) => born,
+    id: ({ id }) => id,
+    bookCount: async ({ name }) => {
+      const author = await Author.findOne({ name });
+
+      return Book.collection.countDocuments({ author: author._id });
+    },
   },
 };
 
