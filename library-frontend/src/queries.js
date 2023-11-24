@@ -49,6 +49,7 @@ export const CREATE_BOOK = gql`
         born
       }
       published
+      genres
     }
   }
 `;
