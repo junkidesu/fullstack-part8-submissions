@@ -7,10 +7,21 @@ import LoginForm from "./components/LoginForm";
 import { Route, Routes, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useApolloClient } from "@apollo/client";
+import { useSubscription } from "@apollo/client";
+import { BOOK_ADDED } from "./queries";
 
 const App = () => {
   const [token, setToken] = useState(null);
   const client = useApolloClient();
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      console.log("Data received");
+      console.log(data);
+
+      window.alert(`Book "${data.data.bookAdded.title}" added!`);
+    },
+  });
 
   useEffect(() => {
     const userToken = localStorage.getItem("user-token");
