@@ -1,10 +1,21 @@
 const { ApolloServer } = require("@apollo/server");
-const { startStandaloneServer } = require("@apollo/server/standalone");
+const { expressMiddleware } = require("@apollo/server/express4");
+const {
+  ApolloServerPluginDrainHttpServer,
+} = require("@apollo/server/plugin/drainHttpServer");
+const { makeExecutableSchema } = require("@graphql-tools/schema");
+const express = require("express");
+const cors = require("cors");
+const http = require("http");
+
+const mongoose = require("mongoose");
+
+const jwt = require("jsonwebtoken");
+
+const User = require("./models/user");
+
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const User = require("./models/user");
 
 require("dotenv").config();
 
@@ -20,26 +31,43 @@ mongoose
     console.log("error connecting to MongoDB", error.message);
   });
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+const start = async () => {
+  const app = express();
+  const httpServer = http.createServer(app);
 
-startStandaloneServer(server, {
-  listen: {
-    port: 4000,
-  },
-  context: async ({ req, res }) => {
-    const auth = req ? req.headers.authorization : null;
+  const server = new ApolloServer({
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
 
-    if (auth && auth.startsWith("Bearer ")) {
-      const token = auth.replace("Bearer ", "");
+  await server.start();
 
-      const decodedToken = jwt.verify(token, process.env.SECRET);
+  app.use(
+    "/",
+    cors(),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req, res }) => {
+        const auth = req ? req.headers.authorization : null;
 
-      const currentUser = await User.findById(decodedToken.id);
+        if (auth && auth.startsWith("Bearer ")) {
+          const token = auth.replace("Bearer ", "");
 
-      return { currentUser };
-    }
-  },
-}).then(({ url }) => console.log(`Server running at ${url}`));
+          const decodedToken = jwt.verify(token, process.env.SECRET);
+
+          const currentUser = await User.findById(decodedToken.id);
+
+          return { currentUser };
+        }
+      },
+    })
+  );
+
+  const PORT = 4000;
+
+  httpServer.listen(PORT, () => {
+    console.log(`Server is now running on http://localhost:${PORT}`);
+  });
+};
+
+start();
