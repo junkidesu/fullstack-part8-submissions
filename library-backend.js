@@ -50,6 +50,7 @@ const typeDefs = `
   type Query {
     bookCount: Int
     allBooks(author: String, genre: String): [Book!]!
+    genres: [String!]!
     allAuthors: [Author!]!
     authorCount: Int
     me: User
@@ -89,11 +90,18 @@ const resolvers = {
 
       return Book.find({});
     },
+    genres: async () => {
+      const books = await Book.find({});
+
+      const genres = [...new Set(books.map((b) => b.genres).flat())];
+
+      return genres;
+    },
     allAuthors: async () => Author.find({}),
     authorCount: async () => Author.collection.countDocuments(),
     me: (_root, _args, context) => {
       return context.currentUser;
-    }
+    },
   },
   Mutation: {
     addBook: async (_root, args, { currentUser }) => {
