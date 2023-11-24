@@ -8,7 +8,8 @@ import { Route, Routes, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useSubscription } from "@apollo/client";
-import { BOOK_ADDED } from "./queries";
+import { ALL_BOOKS, BOOK_ADDED } from "./queries";
+import { updateBooks } from "./util";
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -17,7 +18,10 @@ const App = () => {
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
       console.log("Data received");
-      console.log(data);
+
+      const addedBook = data.data.bookAdded;
+
+      updateBooks(client.cache, ALL_BOOKS, addedBook);
 
       window.alert(`Book "${data.data.bookAdded.title}" added!`);
     },
